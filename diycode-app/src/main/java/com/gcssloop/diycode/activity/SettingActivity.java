@@ -23,8 +23,6 @@
 package com.gcssloop.diycode.activity;
 
 import android.view.View;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 
 import com.gcssloop.diycode.R;
 import com.gcssloop.diycode.base.app.BaseActivity;
@@ -51,17 +49,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
         mConfig = Config.getSingleInstance();
         showCacheSize(holder);
 
-        Boolean isUseInside = mConfig.isUseInsideBrowser();
-        Switch isUseInsideBrowser = holder.get(R.id.use_inside_browser);
-        isUseInsideBrowser.setChecked(isUseInside);
-        isUseInsideBrowser.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mConfig.setUesInsideBrowser(isChecked);
-            }
-        });
-
-        String versionName = AppUtil.getAppVersionName(this);
+        String versionName = AppUtil.getVersionName(this);
         holder.setText(R.id.app_version, versionName);
 
         if (mDiycode.isLogin()) {

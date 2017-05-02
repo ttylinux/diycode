@@ -28,10 +28,10 @@ android {
 
     defaultConfig {
         applicationId "com.gcssloop.diycode"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 25
         versionCode 4
-        versionName "v0.0.6"
+        versionName "v0.1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -59,8 +59,10 @@ dependencies {
     compile 'com.github.gcssloop:ViewSupport:v1.3.0'
     compile 'com.bm.photoview:library:1.4.1'
     compile 'com.romandanylyk:pageindicatorview:0.1.2@aar'
+    compile 'com.android.support:customtabs:25.3.0'
     compile project(':diycode-sdk')
     compile project(':expectanim')
+    compile project(':recyclerview')
 
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'

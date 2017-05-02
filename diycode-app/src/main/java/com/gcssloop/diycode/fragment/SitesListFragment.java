@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified 2017-03-28 03:10:13
+ * Last modified 2017-04-09 14:32:41
  *
  * GitHub:  https://github.com/GcsSloop
  * Website: http://www.gcssloop.com
@@ -24,52 +24,28 @@ package com.gcssloop.diycode.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.widget.NestedScrollView;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.TextView;
 
-import com.gcssloop.diycode.R;
-import com.gcssloop.diycode.adapter.sites.SiteItem;
-import com.gcssloop.diycode.adapter.sites.SiteProvider;
-import com.gcssloop.diycode.adapter.sites.SitesItem;
-import com.gcssloop.diycode.adapter.sites.SitesProvider;
-import com.gcssloop.diycode.base.app.BaseFragment;
-import com.gcssloop.diycode.base.app.ViewHolder;
-import com.gcssloop.diycode.multitype.MultiTypeAdapter;
-import com.gcssloop.diycode.utils.DataCache;
-import com.gcssloop.diycode_sdk.api.Diycode;
+import com.gcssloop.diycode.fragment.base.RefreshRecyclerFragment;
+import com.gcssloop.diycode.fragment.bean.SiteItem;
+import com.gcssloop.diycode.fragment.provider.SiteProvider;
+import com.gcssloop.diycode.fragment.bean.SitesItem;
+import com.gcssloop.diycode.fragment.provider.SitesProvider;
 import com.gcssloop.diycode_sdk.api.sites.bean.Sites;
 import com.gcssloop.diycode_sdk.api.sites.event.GetSitesEvent;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
+import com.gcssloop.diycode_sdk.log.Logger;
+import com.gcssloop.recyclerview.adapter.multitype.HeaderFooterAdapter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * topic 相关的 fragment， 主要用于显示 topic 列表
+ * 首页 sites 列表
  */
-public class SitesListFragment extends BaseFragment {
-    // 底部状态显示
-    private static final String FOOTER_LOADING = "loading...";
-    private static final String FOOTER_NORMAL = "-- end --";
-    private static final String FOOTER_ERROR = "-- 获取失败 --";
-    private TextView mFooter;
-
-    // 数据
-    private Diycode mDiycode;                       // 在线(服务器)
-    private DataCache mDataCache;                   // 缓存(本地)
-
-    // View
-    private MultiTypeAdapter mAdapter;
-    private NestedScrollView mScrollView;
-
+public class SitesListFragment extends RefreshRecyclerFragment<Sites, GetSitesEvent> {
 
     public static SitesListFragment newInstance() {
         Bundle args = new Bundle();
@@ -78,82 +54,57 @@ public class SitesListFragment extends BaseFragment {
         return fragment;
     }
 
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mDiycode = Diycode.getSingleInstance();
-        mDataCache = new DataCache(getContext());
-        mDataCache.getSitesItems();
+    @Override public void initData(HeaderFooterAdapter adapter) {
+        setLoadMoreEnable(true);
+        List<Serializable> sitesList = mDataCache.getSitesItems();
+        if (sitesList != null) {
+            Logger.e("sites : " + sitesList.size());
+            mAdapter.addDatas(sitesList);
+            setLoadMoreEnable(false);
+        } else {
+            loadMore();
+        }
     }
 
     @Override
-    protected int getLayoutId() {
-        return R.layout.fragment_sites;
-    }
-
-    @Override
-    protected void initViews(ViewHolder holder, View root) {
-        mScrollView = holder.get(R.id.scroll_view);
-        mFooter = holder.get(R.id.footer);
-        initRecyclerView(getContext(), holder);
-        loadData();
-    }
-
-    private void initRecyclerView(final Context context, ViewHolder holder) {
-        RecyclerView recyclerView = holder.get(R.id.recycler_view);
-
-        mAdapter = new MultiTypeAdapter();
+    protected void setAdapterRegister(Context context, RecyclerView recyclerView,
+                                      HeaderFooterAdapter adapter) {
         mAdapter.register(SiteItem.class, new SiteProvider(getContext()));
         mAdapter.register(SitesItem.class, new SitesProvider(getContext()));
+    }
 
+    @NonNull @Override protected RecyclerView.LayoutManager getRecyclerViewLayoutManager() {
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
         layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                return (mAdapter.getDatas().get(position) instanceof SitesItem) ? 2 : 1;
+                return (mAdapter.getFullDatas().get(position) instanceof SiteItem) ? 1 : 2;
             }
         });
-
-        recyclerView.setAdapter(mAdapter);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
-        layoutManager.setAutoMeasureEnabled(true);
-        recyclerView.setNestedScrollingEnabled(false);
-        layoutManager.setSmoothScrollbarEnabled(true);
+        return layoutManager;
     }
 
-
-    // 加载数据
-    private void loadData() {
-        List<Serializable> sitesList = mDataCache.getSitesItems();
-        if (sitesList != null) {
-            mAdapter.addDatas(sitesList);
-            mFooter.setText(FOOTER_NORMAL);
-        } else {
-            mDiycode.getSites();
-            mFooter.setText(FOOTER_LOADING);
-        }
+    @NonNull @Override protected String request(int offset, int limit) {
+        return mDiycode.getSites();
     }
 
+    @Override protected void onRefresh(GetSitesEvent event, HeaderFooterAdapter adapter) {
+        toast("刷新成功");
+        convertData(event.getBean());
+    }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onSitesList(GetSitesEvent event) {
-        if (event.isOk()) {
-            List<Sites> sitesList = event.getBean();
-            convertData(sitesList);
-            // mDataCache.saveSites(event.getBean());
-        } else {
-            toast("获取 sites 失败");
-            mFooter.setText(FOOTER_ERROR);
-        }
+    @Override protected void onLoadMore(GetSitesEvent event, HeaderFooterAdapter adapter) {
+        toast("加载成功");
+        convertData(event.getBean());
+    }
 
-        mFooter.setText(FOOTER_NORMAL);
+    @Override protected void onError(GetSitesEvent event, String postType) {
+        toast("获取失败");
     }
 
     // 转换数据
-    private void convertData(List<Sites> sitesList) {
-        List<Serializable> items = new ArrayList<>();
+    private void convertData(final List<Sites> sitesList) {
+        ArrayList<Serializable> items = new ArrayList<>();
         for (Sites sites : sitesList) {
 
             items.add(new SitesItem(sites.getName()));
@@ -166,25 +117,10 @@ public class SitesListFragment extends BaseFragment {
                 items.add(new SiteItem("", "", ""));
             }
         }
+
+        mAdapter.clearDatas();
         mAdapter.addDatas(items);
         mDataCache.saveSitesItems(items);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
-    }
-
-    public void quickToTop() {
-        if (mScrollView != null) {
-            mScrollView.smoothScrollTo(0, 0);
-        }
+        setLoadMoreEnable(false);
     }
 }

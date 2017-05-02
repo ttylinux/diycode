@@ -1,14 +1,11 @@
 # 01 - 整体架构
 
- diycode 开放 API 也有几个月的时间了，很多小伙伴都说想要试试，但是迄今为止，只有一个完整的开源客户端，看看隔壁 “干货集中营” 的客户端数量，简直不能比啊。我觉得其中很大的原因就是 diycode 的 api 数量太多，使用起来也太过于复杂了，单单权限认证这一关就能让不少跃跃欲试的小伙伴望而却步。
+diycode 开放 API 也有几个月的时间了，很多小伙伴都说想要试试，但是迄今为止，只有一个完整的开源客户端，看看隔壁 “干货集中营” 的客户端数量，简直不能比啊。我觉得其中很大的原因就是 diycode 的 api 数量太多，使用起来也太过于复杂了，单单权限认证这一关就能让不少跃跃欲试的小伙伴望而却步。
 
-  为了解决这一难题，我将 diycode 的开放 API 进行了二次封装，以方便想要制作客户端的小伙伴们使用，经过比较“漫长”的摸索和设计，目前其基本架构已经成型了，差不多是下面这样子：
+为了解决这一难题，我将 diycode 的开放 API 进行了二次封装，以方便想要制作客户端的小伙伴们使用，经过比较“漫长”的摸索和设计，目前其基本架构已经成型了，差不多是下面这样子：
 
 ### SDK 结构
 ![](https://ww2.sinaimg.cn/large/006tKfTcly1fcvoedie5vj30ea0aamxj.jpg)
-
-### 整体结构
-![](https://ww2.sinaimg.cn/large/006tNc79ly1fcoclgo2rtj30cz076mxi.jpg)
 
 当然了，里面还有一些细节没有在图中进行展示，具体的实现结构要比上图稍微复杂那么一点点。
 
@@ -128,8 +125,8 @@ public class TopicContentActivity extends BaseActivity implements View.OnClickLi
 
 可以看到，其逻辑结构相当简单，当然了，这些代码都是经过我高度浓缩精炼后的，具体的浓缩精炼方法会在后续开发日志中逐渐教给大家，当然了，直接去看源码也行，本次的 diycode 开发过程是全公开的，如果想关注 diycode 的更多细节，可以到 [GitHub](https://github.com/GcsSloop/diycode) 查看。
 
-本次开发日志就到这里了，如果想要了解我的话，可以关注我的微博和网站，详情见下方。
+如果想要了解我的话，可以关注我的微博和网站，详情见下方。
 
-微博： http://weibo.com/GcsSloop
+微博： http://weibo.com/GcsSloop  
 网站： http://www.gcssloop.com
 

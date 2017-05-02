@@ -28,8 +28,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.gcssloop.diycode.activity.WebActivity;
-import com.gcssloop.diycode_sdk.log.Logger;
+import com.gcssloop.diycode.utils.customtabs.CustomTabsHelper;
 
 public class IntentUtil {
 
@@ -42,22 +41,12 @@ public class IntentUtil {
      * @param url     url
      */
     public static void openUrl(Context context, String url) {
+        // TODO Chrome Custom Tabs
         if (null == url || url.isEmpty()) {
             Log.i("Diyocde", "Url地址错误");
             return;
         }
-        Boolean useInside = true;
-        try {
-            useInside = Config.getSingleInstance().isUseInsideBrowser();
-        } catch (Exception e) {
-            Logger.e("类型转换错误");
-        }
-        if (useInside) {
-            WebActivity.newInstance(context, url);
-        } else {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            context.startActivity(intent);
-        }
+        CustomTabsHelper.openUrl(context, url);
     }
 
     /**
